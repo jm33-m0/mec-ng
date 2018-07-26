@@ -16,20 +16,23 @@ var (
 	IPList string
 	// Mode : working mode
 	Mode string
-	// ThdCnt : how many tasks per time
-	ThdCnt int
+	// JobCnt : how many tasks per time
+	JobCnt int
 	// Module : which module to use
 	Module string
 	// TailArgs : more args in the tail
 	TailArgs []string
+	// UseProxy : whether use shadowsocks for anonymity or not
+	UseProxy bool
 )
 
 // ArgParse : parse cmd line args for package core
 func ArgParse() {
-	IPList = *flag.String("iplist", "", "target ip list")
-	Mode = *flag.String("mode", "", "working mode")
-	ThdCnt = *flag.Int("thd", 100, "how many tasks per time")
-	Module = *flag.String("module", "", "which module to use")
+	flag.StringVar(&IPList, "iplist", "", "target ip list")
+	flag.StringVar(&Mode, "mode", "", "working mode")
+	flag.IntVar(&JobCnt, "thd", 100, "how many tasks per time")
+	flag.StringVar(&Module, "module", "", "which module to use")
+	flag.BoolVar(&UseProxy, "useproxy", true, "use shadowsocks or not")
 
 	flag.Parse()
 
@@ -40,7 +43,7 @@ func ArgParse() {
 func PrintBanner() {
 	logo, err := base64.StdEncoding.DecodeString(LogoEncoded)
 	if err != nil {
-		log.Panicf("Logo error: ", err)
+		log.Panic("Logo error: ", err)
 	}
 	fmt.Println(string(logo))
 	fmt.Println(strings.Repeat(" ", 26) + "by jm33-ng")

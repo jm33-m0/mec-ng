@@ -8,4 +8,8 @@ func main() {
 	// init
 	core.PrintBanner()
 	core.ArgParse()
+	core.Config("")
+
+	// do the job
+	core.Dispatcher()
 }
