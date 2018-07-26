@@ -9,7 +9,7 @@ pentest toolbox
 
 ## screenshot
 
-![screenshot](./img/screenshot.png)
+![screenshot](./img/screenshot.jpeg)
 
 ## disclaimer
 
