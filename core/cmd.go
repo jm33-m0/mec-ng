@@ -46,5 +46,5 @@ func PrintBanner() {
 		log.Panic("Logo error: ", err)
 	}
 	fmt.Println(string(logo))
-	fmt.Println(strings.Repeat(" ", 26) + "by jm33-ng")
+	fmt.Println(strings.Repeat(" ", 26) + "by jm33-ng\n\n\n")
 }

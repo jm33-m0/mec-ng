@@ -1,6 +1,7 @@
 package core
 
 import (
+	"bufio"
 	"fmt"
 	"log"
 	"os"
@@ -35,7 +36,7 @@ func Dispatcher() {
 		}
 		run(TailArgs[0])
 	case "zoomeye":
-		log.Println("[-] Starting zoomeye.py")
+		log.Println("[*] Starting zoomeye.py")
 		cmdstr := fmt.Sprintf("python3 %s/scripts/zoomeye.py", Environ.MecRoot)
 		cmd := exec.Command(cmdstr)
 		cmd.Run()
@@ -45,7 +46,7 @@ func Dispatcher() {
 }
 
 func run(mod string) {
-	log.Printf("[-] Started %s with %d workers", mod, JobCnt)
+	log.Printf("[*] Started %s with %d workers", mod, JobCnt)
 
 	lines, err := FileToLines(IPList)
 	if err != nil {
@@ -78,4 +79,29 @@ func run(mod string) {
 
 func masscan() {
 	// use masscan to grab a list of targets
+	log.Println("[*] Starting masscan")
+
+	args := fmt.Sprintf("-c %s/conf/masscan.conf", Environ.MecRoot)
+	cmd := exec.Command("masscan", strings.Split(args, " ")...)
+
+	stderr, _ := cmd.StderrPipe()
+	stdout, _ := cmd.StdoutPipe()
+	cmd.Start()
+
+	errScanner := bufio.NewScanner(stderr)
+	outScanner := bufio.NewScanner(stdout)
+	// scanner.Split(bufio.ScanLines)
+	go func() {
+		for outScanner.Scan() {
+			m := outScanner.Text()
+			fmt.Println(m)
+		}
+	}()
+	go func() {
+		for errScanner.Scan() {
+			e := errScanner.Text()
+			fmt.Println(e)
+		}
+	}()
+	cmd.Wait()
 }
