@@ -3,8 +3,10 @@ package core
 import (
 	"bufio"
 	"encoding/xml"
+	"fmt"
 	"log"
 	"os"
+	"os/exec"
 	"strings"
 )
 
@@ -140,6 +142,35 @@ func FileToLines(filepath string) ([]string, error) {
 		return lines, nil
 	}
 	return nil, err
+}
+
+// ExecCmd : exec shell command and put combined output to stdout/stderr
+func ExecCmd(prog string, args string) {
+
+	cmd := exec.Command(prog, strings.Split(args, " ")...)
+
+	stderr, _ := cmd.StderrPipe()
+	stdout, _ := cmd.StdoutPipe()
+	cmd.Start()
+
+	outScanner := bufio.NewScanner(stdout)
+	errScanner := bufio.NewScanner(stderr)
+
+	go func() {
+		for outScanner.Scan() {
+			m := outScanner.Text()
+			fmt.Println(m)
+		}
+	}()
+
+	go func() {
+		for errScanner.Scan() {
+			e := errScanner.Text()
+			fmt.Println(e)
+		}
+	}()
+
+	cmd.Wait()
 }
 
 func searchHost(filter string, banner string) bool {

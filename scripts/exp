@@ -1,0 +1,4 @@
+#!/bin/bash
+
+echo "$RANDOM: working..."
+sleep 2

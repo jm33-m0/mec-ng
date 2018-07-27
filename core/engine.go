@@ -1,14 +1,13 @@
 package core
 
 import (
-	"bufio"
 	"fmt"
 	"log"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 	"sync"
+	"time"
 )
 
 // Env : env vars for mec
@@ -31,15 +30,15 @@ func Config(mod string) {
 func Dispatcher() {
 	switch Mode {
 	case "custom":
-		if len(TailArgs) == 0 {
+		if Module == "" {
 			log.Fatal("[-] please specify the executable to run")
 		}
-		run(TailArgs[0])
+		run(Module)
 	case "zoomeye":
 		log.Println("[*] Starting zoomeye.py")
-		cmdstr := fmt.Sprintf("python3 %s/scripts/zoomeye.py", Environ.MecRoot)
-		cmd := exec.Command(cmdstr)
-		cmd.Run()
+		prog := "python3"
+		args := fmt.Sprintf("%s/scripts/zoomeye.py", Environ.MecRoot)
+		ExecCmd(prog, args)
 	case "masscan":
 		masscan()
 	}
@@ -50,24 +49,21 @@ func run(mod string) {
 
 	lines, err := FileToLines(IPList)
 	if err != nil {
-		log.Printf("[-] Unable to open %s", IPList)
+		log.Printf("[-] Unable to open target list: %s", IPList)
+		log.Print(err)
 		return
 	}
 
+	var wg sync.WaitGroup
 	i := 0 // job counter
 	for _, line := range lines {
 		ip := strings.Trim(line, "\n")
-		var wg sync.WaitGroup
 		go func() {
 			wg.Add(1)
-			toExec := append(TailArgs, ip)
-			cmd := exec.Command(strings.Join(toExec, ","))
-			err = cmd.Run()
-			if err != nil {
-				log.Print("[-] Error running task: ", err)
-				return
-			}
-			wg.Done()
+			defer wg.Done()
+			argsArray := append(TailArgs, ip)
+			args := strings.Join(argsArray, ",")
+			ExecCmd(mod, args)
 		}()
 		i++
 		if i == JobCnt && &wg != nil {
@@ -75,33 +71,18 @@ func run(mod string) {
 			wg.Wait()
 		}
 	}
+	for {
+		time.Sleep(1 * time.Second)
+		// TODO check if any process is still running, if none found, tell the routine to exit
+	}
 }
 
 func masscan() {
 	// use masscan to grab a list of targets
 	log.Println("[*] Starting masscan")
 
+	prog := "masscan"
 	args := fmt.Sprintf("-c %s/conf/masscan.conf", Environ.MecRoot)
-	cmd := exec.Command("masscan", strings.Split(args, " ")...)
 
-	stderr, _ := cmd.StderrPipe()
-	stdout, _ := cmd.StdoutPipe()
-	cmd.Start()
-
-	errScanner := bufio.NewScanner(stderr)
-	outScanner := bufio.NewScanner(stdout)
-	// scanner.Split(bufio.ScanLines)
-	go func() {
-		for outScanner.Scan() {
-			m := outScanner.Text()
-			fmt.Println(m)
-		}
-	}()
-	go func() {
-		for errScanner.Scan() {
-			e := errScanner.Text()
-			fmt.Println(e)
-		}
-	}()
-	cmd.Wait()
+	ExecCmd(prog, args)
 }
