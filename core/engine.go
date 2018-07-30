@@ -77,10 +77,7 @@ func Dispatcher() {
 		}
 		run(Module)
 	case "zoomeye":
-		log.Println("[*] starting zoomeye.py")
-		prog := "python3"
-		args := fmt.Sprintf("%s/built-in/zoomeye.py", Environ.MecRoot)
-		utils.ExecCmd(prog, args)
+		fmt.Printf("[*] please run %s/built-in/zoomeye/zoomeye.py manually\n", Environ.MecRoot)
 	case "masscan":
 		masscan()
 	case "xmir":
