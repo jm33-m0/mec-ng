@@ -8,6 +8,7 @@ pentest toolbox
 - [x] zoomeye crawler with multi-thread
 - [x] fast internet sweeping using masscan
 - [x] execute custom exp with process-level concurrency
+- [ ] shadowsocks proxy support (for anonymity)
 - [ ] mass brute-force
 - [ ] built-in exploit packs
 
