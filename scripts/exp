@@ -1,4 +1,4 @@
 #!/bin/bash
 
-echo "$RANDOM: working on $1..."
+echo "[$RANDOM] working... with arg: " "$@"
 sleep 2

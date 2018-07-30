@@ -14,19 +14,56 @@ import (
 
 // Env : env vars for mec
 type Env struct {
-	MecRoot   string
-	WorkDir   string
-	TimeStamp string
+	MecRoot    string
+	TargetList string
+	WorkDir    string
+	TimeStamp  string
+	Config     string
 }
 
 // Environ : init env vars
 var Environ Env
 
 // Config : read env vars and configs
-func Config(mod string) {
+func Config() {
 	exec, _ := os.Executable()
 	Environ.MecRoot = filepath.Dir(exec)
-	Environ.WorkDir = Environ.MecRoot + "/modules/" + mod
+	Environ.Config = Environ.MecRoot + "/conf/mec.conf"
+
+	if Module != "" {
+		// workdir
+		workpath := strings.Split(Module, "/")
+		workpath = workpath[1 : len(workpath)-1]
+		workdir := "/" + strings.Join(workpath, "/")
+		Environ.WorkDir = Environ.MecRoot + workdir
+
+		// target list
+		listFile := strings.Split(IPList, "/")
+		listFile = listFile[1:]
+		list := "/" + strings.Join(listFile, "/")
+		Environ.TargetList = Environ.MecRoot + list
+
+		// custom_args
+		if lines, err := utils.FileToLines(Environ.Config); err == nil {
+			for _, line := range lines {
+				line = strings.Trim(line, "\n")
+				if strings.HasPrefix(line, "custom_args") {
+					lineArray := strings.Split(line, "=")
+					TailArgs = strings.Split(lineArray[1], " ")
+					log.Print("[*] custom args: ", TailArgs)
+				}
+			}
+		}
+
+		// cd to work dir
+		err := os.Chdir(Environ.WorkDir)
+		if err != nil {
+			log.Fatal("[-] cannot enter target directory: ", err)
+		}
+		log.Println("[*] working under: ", Environ.WorkDir)
+		log.Println("[*] target: ", Environ.TargetList)
+	}
+
 	t := time.Now()
 	Environ.TimeStamp = t.Format("20060102150405")
 }
@@ -40,9 +77,9 @@ func Dispatcher() {
 		}
 		run(Module)
 	case "zoomeye":
-		log.Println("[*] Starting zoomeye.py")
+		log.Println("[*] starting zoomeye.py")
 		prog := "python3"
-		args := fmt.Sprintf("%s/scripts/zoomeye.py", Environ.MecRoot)
+		args := fmt.Sprintf("%s/built-in/zoomeye.py", Environ.MecRoot)
 		utils.ExecCmd(prog, args)
 	case "masscan":
 		masscan()
@@ -52,11 +89,16 @@ func Dispatcher() {
 }
 
 func run(mod string) {
-	log.Printf("[*] Started %s with %d workers", mod, JobCnt)
+	// get abs path of executable
+	modArray := strings.Split(mod, "/")
+	modArray = modArray[1:]
+	mod = Environ.MecRoot + "/" + strings.Join(modArray, "/")
 
-	lines, err := utils.FileToLines(IPList)
+	log.Printf("[*] started %s with %d workers", mod, JobCnt)
+
+	lines, err := utils.FileToLines(Environ.TargetList)
 	if err != nil {
-		log.Printf("[-] Unable to open target list: %s", IPList)
+		log.Printf("[-] unable to open target list: %s", Environ.TargetList)
 		log.Print(err)
 		return
 	}
@@ -86,7 +128,7 @@ func run(mod string) {
 
 func masscan() {
 	// use masscan to grab a list of targets
-	log.Println("[*] Starting masscan")
+	log.Println("[*] starting masscan")
 
 	prog := "masscan"
 	args := fmt.Sprintf("-c %s/conf/masscan.conf -oX %s", Environ.MecRoot, Environ.MecRoot+"/output/"+Environ.TimeStamp+"-masscan.xml")
@@ -101,7 +143,7 @@ func xmir(xml string, filter string) {
 
 	// if ip list doesn't exist, parse the XML file to get one
 	if _, err := os.Stat(outfile); os.IsNotExist(err) {
-		log.Println("Parsing masscan result...")
+		log.Println("parsing masscan result...")
 		utils.XML2List(xml, outfile, filter)
 	}
 }

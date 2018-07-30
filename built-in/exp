@@ -1,4 +1,0 @@
-#!/bin/bash
-
-echo "$RANDOM: working on $1..."
-sleep 2

@@ -8,7 +8,9 @@ func main() {
 	// init
 	core.PrintBanner()
 	core.ArgParse()
-	core.Config("")
+
+	// env
+	core.Config()
 
 	// do the job
 	core.Dispatcher()

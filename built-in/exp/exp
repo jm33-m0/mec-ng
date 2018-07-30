@@ -1,0 +1,5 @@
+#!/bin/bash
+
+echo "[$RANDOM] working... with arg: " "$@"
+cat ./data
+sleep 2
