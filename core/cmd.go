@@ -53,7 +53,7 @@ func PrintBanner() {
 	}
 	fmt.Println(string(logo))
 	fmt.Println(strings.Repeat(" ", 26) + "by jm33-ng\n")
-	fmt.Println("examples:\n mec-ng -mode custom -module ./script/exp/exp -list ./conf/list -thd 50 -useproxy exp_args")
+	fmt.Println("examples:\n mec-ng -mode custom -module ./built-in/exp/exp -list ./conf/list -thd 50 -useproxy")
 	fmt.Println(" mec-ng -mode masscan")
 	fmt.Println(" mec-ng -mode xmir -xml ./output/masscan.xml -filter 'SSH-2.0-OpenSSH_7.4p1'")
 	fmt.Print(" mec-ng -mode zoomeye\n\n\n")
