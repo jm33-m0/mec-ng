@@ -24,15 +24,21 @@ var (
 	TailArgs []string
 	// UseProxy : whether use shadowsocks for anonymity or not
 	UseProxy bool
+	// Filter : the filter to use when parsing masscan xml
+	Filter string
+	// MasscanXML : specify the source XML for xmir
+	MasscanXML string
 )
 
 // ArgParse : parse cmd line args for package core
 func ArgParse() {
-	flag.StringVar(&IPList, "iplist", "", "target ip list")
-	flag.StringVar(&Mode, "mode", "", "working mode")
+	flag.StringVar(&IPList, "list", "", "target ip list, useful in custom mode and exp mode")
+	flag.StringVar(&Mode, "mode", "", "working mode, can be one of the following:\ncustom, zoomeye, masscan")
+	flag.StringVar(&Filter, "filter", "", "the filter (for banners) to use when parsing masscan xml")
+	flag.StringVar(&Filter, "xml", "", "specify the source XML for xmir")
 	flag.IntVar(&JobCnt, "thd", 100, "how many tasks per time")
-	flag.StringVar(&Module, "module", "", "which module to use")
-	flag.BoolVar(&UseProxy, "useproxy", true, "use shadowsocks or not")
+	flag.StringVar(&Module, "module", "", "in custom mode, this is the executable to run")
+	flag.BoolVar(&UseProxy, "useproxy", false, "use shadowsocks or not")
 
 	flag.Parse()
 
@@ -46,5 +52,8 @@ func PrintBanner() {
 		log.Panic("Logo error: ", err)
 	}
 	fmt.Println(string(logo))
-	fmt.Println(strings.Repeat(" ", 26) + "by jm33-ng\n\n\n")
+	fmt.Println(strings.Repeat(" ", 26) + "by jm33-ng\n")
+	fmt.Println("examples:\nmec-ng -mode custom -module ./script/exp -list ./iplist.txt -thd 50 -useproxy -expargs")
+	fmt.Println("mec-ng -mode zoomeye")
+	fmt.Println("mec-ng -mode zoomeye")
 }

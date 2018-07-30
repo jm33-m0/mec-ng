@@ -8,12 +8,15 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/jm33-m0/mec-ng/utils"
 )
 
 // Env : env vars for mec
 type Env struct {
-	MecRoot string
-	WorkDir string
+	MecRoot   string
+	WorkDir   string
+	TimeStamp string
 }
 
 // Environ : init env vars
@@ -24,6 +27,7 @@ func Config(mod string) {
 	exec, _ := os.Executable()
 	Environ.MecRoot = filepath.Dir(exec)
 	Environ.WorkDir = Environ.MecRoot + "/modules/" + mod
+	Environ.TimeStamp = time.Now().Format("20110504111515")
 }
 
 // Dispatcher : read cmdline args and do the job
@@ -38,16 +42,18 @@ func Dispatcher() {
 		log.Println("[*] Starting zoomeye.py")
 		prog := "python3"
 		args := fmt.Sprintf("%s/scripts/zoomeye.py", Environ.MecRoot)
-		ExecCmd(prog, args)
+		utils.ExecCmd(prog, args)
 	case "masscan":
 		masscan()
+	case "xmir":
+		xmir(MasscanXML, Filter)
 	}
 }
 
 func run(mod string) {
 	log.Printf("[*] Started %s with %d workers", mod, JobCnt)
 
-	lines, err := FileToLines(IPList)
+	lines, err := utils.FileToLines(IPList)
 	if err != nil {
 		log.Printf("[-] Unable to open target list: %s", IPList)
 		log.Print(err)
@@ -63,7 +69,7 @@ func run(mod string) {
 			defer wg.Done()
 			argsArray := append(TailArgs, ip)
 			args := strings.Join(argsArray, ",")
-			ExecCmd(mod, args)
+			utils.ExecCmd(mod, args)
 		}()
 		i++
 		if i == JobCnt && &wg != nil {
@@ -82,7 +88,19 @@ func masscan() {
 	log.Println("[*] Starting masscan")
 
 	prog := "masscan"
-	args := fmt.Sprintf("-c %s/conf/masscan.conf", Environ.MecRoot)
+	args := fmt.Sprintf("-c %s/conf/masscan.conf -oX %s", Environ.MecRoot, Environ.MecRoot+"/output/"+Environ.TimeStamp+"-masscan.xml")
 
-	ExecCmd(prog, args)
+	utils.ExecCmd(prog, args)
+}
+
+func xmir(xml string, filter string) {
+	// parse masscan xml result
+	log.Println("[*] xmir started")
+	outfile := Environ.MecRoot + "/output/" + Environ.TimeStamp + ".xmirlist"
+
+	// if ip list doesn't exist, parse the XML file to get one
+	if _, err := os.Stat(outfile); os.IsNotExist(err) {
+		log.Println("Parsing masscan result...")
+		utils.XML2List(xml, outfile, filter)
+	}
 }
