@@ -1,6 +1,8 @@
 # mec-ng
 pentest toolbox
 
+> NOTE: this tool is still under early-stage development, if anything goes wrong, please open an issue
+
 ## features
 
 - [x] zoomeye crawler with multi-thread
