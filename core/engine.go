@@ -27,7 +27,8 @@ func Config(mod string) {
 	exec, _ := os.Executable()
 	Environ.MecRoot = filepath.Dir(exec)
 	Environ.WorkDir = Environ.MecRoot + "/modules/" + mod
-	Environ.TimeStamp = time.Now().Format("20110504111515")
+	t := time.Now()
+	Environ.TimeStamp = t.Format("20060102150405")
 }
 
 // Dispatcher : read cmdline args and do the job

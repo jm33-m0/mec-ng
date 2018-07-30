@@ -35,7 +35,7 @@ func ArgParse() {
 	flag.StringVar(&IPList, "list", "", "target ip list, useful in custom mode and exp mode")
 	flag.StringVar(&Mode, "mode", "", "working mode, can be one of the following:\ncustom, zoomeye, masscan")
 	flag.StringVar(&Filter, "filter", "", "the filter (for banners) to use when parsing masscan xml")
-	flag.StringVar(&Filter, "xml", "", "specify the source XML for xmir")
+	flag.StringVar(&MasscanXML, "xml", "", "specify the source XML for xmir")
 	flag.IntVar(&JobCnt, "thd", 100, "how many tasks per time")
 	flag.StringVar(&Module, "module", "", "in custom mode, this is the executable to run")
 	flag.BoolVar(&UseProxy, "useproxy", false, "use shadowsocks or not")
@@ -53,7 +53,8 @@ func PrintBanner() {
 	}
 	fmt.Println(string(logo))
 	fmt.Println(strings.Repeat(" ", 26) + "by jm33-ng\n")
-	fmt.Println("examples:\nmec-ng -mode custom -module ./script/exp -list ./iplist.txt -thd 50 -useproxy -expargs")
-	fmt.Println("mec-ng -mode zoomeye")
-	fmt.Println("mec-ng -mode zoomeye")
+	fmt.Println("examples:\n mec-ng -mode custom -module ./script/exp -list ./iplist.txt -thd 50 -useproxy -exp_args")
+	fmt.Println(" mec-ng -mode masscan")
+	fmt.Println(" mec-ng -mode xmir -xml ./output/masscan.xml -filter 'SSH-2.0-OpenSSH_7.4p1'")
+	fmt.Print(" mec-ng -mode zoomeye\n\n\n")
 }

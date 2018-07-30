@@ -52,7 +52,7 @@ func XML2List(xmlfile string, outfile string, filter string) {
 
 	xmlStream, err := os.Open(xmlfile)
 	if err != nil {
-		log.Println("Failed to open XML file")
+		log.Print("Failed to open XML file: ", err)
 		return
 	}
 	defer xmlStream.Close()
@@ -83,7 +83,10 @@ func XML2List(xmlfile string, outfile string, filter string) {
 				address := h.Address.Addr
 				// port := h.Ports[0].Portid
 
-				banner := h.Ports[0].Service.Banner
+				banner := ""
+				if len(h.Ports) > 0 {
+					banner = h.Ports[0].Service.Banner
+				}
 
 				// write desired host to file
 				if searchHost(filter, banner) {
