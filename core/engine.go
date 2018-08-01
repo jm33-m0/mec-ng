@@ -1,6 +1,7 @@
 package core
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
@@ -102,21 +103,45 @@ func run(mod string) {
 
 	var wg sync.WaitGroup
 	i := 0 // job counter
+	c := make(chan error)
+	ctx, cancel := context.WithCancel(context.Background())
+
 	for _, line := range lines {
 		ip := strings.Trim(line, "\n")
+
 		go func() {
 			wg.Add(1)
 			defer wg.Done()
 			argsArray := append(TailArgs, ip)
 			args := strings.Join(argsArray, " ")
-			utils.ExecCmd(mod, args)
+
+			fmt.Println("working on", ip)
+			c <- utils.ExecCmd(mod, args)
+
+			// in case we want to quit the goroutine on timeout
+			select {
+			case <-ctx.Done():
+				log.Printf("[-] %s : goroutine canceled by timeout", ip)
+				return
+			}
 		}()
+		select {
+		case err := <-c:
+			if err != nil {
+				log.Print("[-] Err in goroutine: ", err)
+			}
+		case <-time.After(10 * time.Second):
+			cancel()
+		}
+
 		i++
+
 		if i == JobCnt && &wg != nil {
 			i = 0
 			wg.Wait()
 		}
 	}
+
 	for {
 		time.Sleep(1 * time.Second)
 		// TODO check if any process is still running, if none found, tell the routine to exit

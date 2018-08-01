@@ -148,14 +148,18 @@ func FileToLines(filepath string) ([]string, error) {
 }
 
 // ExecCmd : exec shell command and put combined output to stdout/stderr
-func ExecCmd(prog string, args string) {
+func ExecCmd(prog string, args string) error {
 
 	cmd := exec.Command(prog, strings.Split(args, " ")...)
 
 	// log.Println(cmd)
 	stderr, _ := cmd.StderrPipe()
 	stdout, _ := cmd.StdoutPipe()
-	cmd.Start()
+
+	err := cmd.Start()
+	if err != nil {
+		return err
+	}
 
 	outScanner := bufio.NewScanner(stdout)
 	errScanner := bufio.NewScanner(stderr)
@@ -175,6 +179,7 @@ func ExecCmd(prog string, args string) {
 	}()
 
 	cmd.Wait()
+	return err
 }
 
 func searchHost(filter string, banner string) bool {
