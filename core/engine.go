@@ -108,7 +108,7 @@ func run(mod string) {
 			wg.Add(1)
 			defer wg.Done()
 			argsArray := append(TailArgs, ip)
-			args := strings.Join(argsArray, ",")
+			args := strings.Join(argsArray, " ")
 			utils.ExecCmd(mod, args)
 		}()
 		i++

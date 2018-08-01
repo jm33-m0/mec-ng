@@ -152,6 +152,7 @@ func ExecCmd(prog string, args string) {
 
 	cmd := exec.Command(prog, strings.Split(args, " ")...)
 
+	// log.Println(cmd)
 	stderr, _ := cmd.StderrPipe()
 	stdout, _ := cmd.StdoutPipe()
 	cmd.Start()
