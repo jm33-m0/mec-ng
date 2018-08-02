@@ -50,7 +50,7 @@ func Config() {
 				if strings.HasPrefix(line, "custom_args") {
 					lineArray := strings.Split(line, "=")
 					TailArgs = strings.Split(lineArray[1], " ")
-					utils.PrintCyan("[*] custom args: ", TailArgs)
+					utils.PrintCyan("[*] custom args: %s", strings.Join(TailArgs, " "))
 				}
 			}
 		}
@@ -58,7 +58,7 @@ func Config() {
 		// cd to work dir
 		err := os.Chdir(Environ.WorkDir)
 		if err != nil {
-			utils.PrintRed("[-] cannot enter target directory: ", err)
+			utils.PrintRed("[-] cannot enter target directory: %s", err.Error())
 			return
 		}
 		utils.PrintCyan("[*] working under: ", Environ.WorkDir)
@@ -97,7 +97,7 @@ func run(mod string) {
 
 	lines, err := utils.FileToLines(Environ.TargetList)
 	if err != nil {
-		utils.PrintError("[-] unable to open target list: %s", Environ.TargetList, err)
+		utils.PrintError("[-] unable to open target list: %s, %s", Environ.TargetList, err.Error())
 		return
 	}
 
@@ -128,7 +128,7 @@ func run(mod string) {
 		select {
 		case err := <-c:
 			if err != nil {
-				utils.PrintRed("[-] Err in goroutine: ", err)
+				utils.PrintRed("[-] Err in goroutine: %s", err.Error())
 			}
 		case <-time.After(10 * time.Second):
 			cancel()
