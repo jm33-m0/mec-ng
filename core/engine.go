@@ -151,6 +151,7 @@ func run(mod string) {
 func masscan(rangelist string) {
 	// use masscan to grab a list of targets
 	log.Println("[*] starting masscan")
+	log.Println("[*] please be patient, masscan might take some time if target list is large")
 
 	prog := "masscan"
 	args := fmt.Sprintf("-iL %s -c %s/conf/masscan.conf -oX %s", rangelist, Environ.MecRoot, Environ.MecRoot+"/output/"+Environ.TimeStamp+"-masscan.xml")
