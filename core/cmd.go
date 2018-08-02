@@ -3,6 +3,7 @@ package core
 import (
 	"encoding/base64"
 	"flag"
+	"fmt"
 	"log"
 	"strings"
 
@@ -55,11 +56,14 @@ func PrintBanner() {
 	if err != nil {
 		log.Panic("Logo error: ", err)
 	}
-	color.Cyan(string(logo))
-	color.Cyan(strings.Repeat(" ", 26) + "by jm33-ng\n")
-	color.Cyan("examples:\n mec-ng -mode custom -module ./built-in/exp/exp -list ./conf/list -thd 50 -useproxy")
-	color.Cyan(" mec-ng -mode masscan -mlist /tmp/range.list")
-	color.Cyan(" mec-ng -mode xmir -xml ./output/masscan.xml -filter 'SSH-2.0-OpenSSH_7.4p1'")
-	color.Cyan(" mec-ng -mode bruteforce -list ./conf/list")
-	color.Cyan(" mec-ng -mode zoomeye\n\n\n")
+
+	color.Set(color.FgCyan, color.Bold)
+	defer color.Unset()
+	fmt.Println(string(logo))
+	fmt.Println(strings.Repeat(" ", 26) + "by jm33-ng\n")
+	fmt.Println("examples:\n mec-ng -mode custom -module ./built-in/exp/exp -list ./conf/list -thd 50 -useproxy")
+	fmt.Println(" mec-ng -mode masscan -mlist /tmp/range.list")
+	fmt.Println(" mec-ng -mode xmir -xml ./output/masscan.xml -filter 'SSH-2.0-OpenSSH_7.4p1'")
+	fmt.Println(" mec-ng -mode bruteforce -list ./conf/list")
+	fmt.Print(" mec-ng -mode zoomeye\n\n\n")
 }
