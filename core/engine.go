@@ -80,7 +80,7 @@ func Dispatcher() {
 	case "zoomeye":
 		fmt.Printf("[*] please run %s/built-in/zoomeye/zoomeye.py manually\n", Environ.MecRoot)
 	case "masscan":
-		masscan()
+		masscan(MasscanRange)
 	case "xmir":
 		xmir(MasscanXML, Filter)
 	}
@@ -148,12 +148,12 @@ func run(mod string) {
 	}
 }
 
-func masscan() {
+func masscan(rangelist string) {
 	// use masscan to grab a list of targets
 	log.Println("[*] starting masscan")
 
 	prog := "masscan"
-	args := fmt.Sprintf("-c %s/conf/masscan.conf -oX %s", Environ.MecRoot, Environ.MecRoot+"/output/"+Environ.TimeStamp+"-masscan.xml")
+	args := fmt.Sprintf("-iL %s -c %s/conf/masscan.conf -oX %s", rangelist, Environ.MecRoot, Environ.MecRoot+"/output/"+Environ.TimeStamp+"-masscan.xml")
 
 	utils.ExecCmd(prog, args)
 }
