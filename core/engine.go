@@ -3,7 +3,6 @@ package core
 import (
 	"context"
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -51,7 +50,7 @@ func Config() {
 				if strings.HasPrefix(line, "custom_args") {
 					lineArray := strings.Split(line, "=")
 					TailArgs = strings.Split(lineArray[1], " ")
-					log.Print("[*] custom args: ", TailArgs)
+					utils.PrintCyan("[*] custom args: ", TailArgs)
 				}
 			}
 		}
@@ -59,10 +58,11 @@ func Config() {
 		// cd to work dir
 		err := os.Chdir(Environ.WorkDir)
 		if err != nil {
-			log.Fatal("[-] cannot enter target directory: ", err)
+			utils.PrintRed("[-] cannot enter target directory: ", err)
+			return
 		}
-		log.Println("[*] working under: ", Environ.WorkDir)
-		log.Println("[*] target: ", Environ.TargetList)
+		utils.PrintCyan("[*] working under: ", Environ.WorkDir)
+		utils.PrintCyan("[*] target: ", Environ.TargetList)
 	}
 
 	t := time.Now()
@@ -74,7 +74,8 @@ func Dispatcher() {
 	switch Mode {
 	case "custom":
 		if Module == "" {
-			log.Fatal("[-] please specify the executable to run")
+			utils.PrintRed("[-] please specify the executable to run")
+			return
 		}
 		run(Module)
 	case "zoomeye":
@@ -92,12 +93,11 @@ func run(mod string) {
 	modArray = modArray[1:]
 	mod = Environ.MecRoot + "/" + strings.Join(modArray, "/")
 
-	log.Printf("[*] started %s with %d workers", mod, JobCnt)
+	utils.PrintCyan("[*] started %s with %d workers", mod, JobCnt)
 
 	lines, err := utils.FileToLines(Environ.TargetList)
 	if err != nil {
-		log.Printf("[-] unable to open target list: %s", Environ.TargetList)
-		log.Print(err)
+		utils.PrintError("[-] unable to open target list: %s", Environ.TargetList, err)
 		return
 	}
 
@@ -115,20 +115,20 @@ func run(mod string) {
 			argsArray := append(TailArgs, ip)
 			args := strings.Join(argsArray, " ")
 
-			fmt.Println("working on", ip)
+			utils.PrintCyan("working on", ip)
 			c <- utils.ExecCmd(mod, args)
 
 			// in case we want to quit the goroutine on timeout
 			select {
 			case <-ctx.Done():
-				log.Printf("[-] %s : goroutine canceled by timeout", ip)
+				utils.PrintRed("[-] %s : goroutine canceled by timeout", ip)
 				return
 			}
 		}()
 		select {
 		case err := <-c:
 			if err != nil {
-				log.Print("[-] Err in goroutine: ", err)
+				utils.PrintRed("[-] Err in goroutine: ", err)
 			}
 		case <-time.After(10 * time.Second):
 			cancel()
@@ -150,8 +150,8 @@ func run(mod string) {
 
 func masscan(rangelist string) {
 	// use masscan to grab a list of targets
-	log.Println("[*] starting masscan")
-	log.Println("[*] please be patient, masscan might take some time if target list is large")
+	utils.PrintCyan("[*] starting masscan")
+	utils.PrintCyan("[*] please be patient, masscan might take some time if target list is large")
 
 	prog := "masscan"
 	args := fmt.Sprintf("-iL %s -c %s/conf/masscan.conf -oX %s", rangelist, Environ.MecRoot, Environ.MecRoot+"/output/"+Environ.TimeStamp+"-masscan.xml")
@@ -161,12 +161,12 @@ func masscan(rangelist string) {
 
 func xmir(xml string, filter string) {
 	// parse masscan xml result
-	log.Println("[*] xmir started")
+	utils.PrintCyan("[*] xmir started")
 	outfile := Environ.MecRoot + "/output/" + Environ.TimeStamp + ".xmirlist"
 
 	// if ip list doesn't exist, parse the XML file to get one
 	if _, err := os.Stat(outfile); os.IsNotExist(err) {
-		log.Println("parsing masscan result...")
+		utils.PrintCyan("parsing masscan result...")
 		utils.XML2List(xml, outfile, filter)
 	}
 }

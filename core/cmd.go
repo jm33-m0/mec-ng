@@ -3,9 +3,10 @@ package core
 import (
 	"encoding/base64"
 	"flag"
-	"fmt"
 	"log"
 	"strings"
+
+	"github.com/fatih/color"
 )
 
 // LogoEncoded : base64 encoded logo, ascii art
@@ -34,11 +35,11 @@ var (
 
 // ArgParse : parse cmd line args for package core
 func ArgParse() {
-	flag.StringVar(&IPList, "list", "", "target ip list, useful in custom mode and exp mode")
+	flag.StringVar(&IPList, "list", "", "target ip list, useful in custom, exp and bruteforce mode")
 	flag.StringVar(&Mode, "mode", "", "working mode, can be one of the following:\ncustom, zoomeye, masscan")
 	flag.StringVar(&Filter, "filter", "", "the filter (for banners) to use when parsing masscan xml")
 	flag.StringVar(&MasscanXML, "xml", "", "specify the source XML for xmir")
-	flag.StringVar(&MasscanRange, "mlist", "", "scan range for masscan")
+	flag.StringVar(&MasscanRange, "mlist", "", "scan list for masscan")
 	flag.IntVar(&JobCnt, "thd", 100, "how many tasks per time")
 	flag.StringVar(&Module, "module", "", "in custom mode, this is the executable to run")
 	flag.BoolVar(&UseProxy, "useproxy", false, "use shadowsocks or not")
@@ -54,10 +55,11 @@ func PrintBanner() {
 	if err != nil {
 		log.Panic("Logo error: ", err)
 	}
-	fmt.Println(string(logo))
-	fmt.Println(strings.Repeat(" ", 26) + "by jm33-ng\n")
-	fmt.Println("examples:\n mec-ng -mode custom -module ./built-in/exp/exp -list ./conf/list -thd 50 -useproxy")
-	fmt.Println(" mec-ng -mode masscan -mlist /tmp/range.list")
-	fmt.Println(" mec-ng -mode xmir -xml ./output/masscan.xml -filter 'SSH-2.0-OpenSSH_7.4p1'")
-	fmt.Print(" mec-ng -mode zoomeye\n\n\n")
+	color.Cyan(string(logo))
+	color.Cyan(strings.Repeat(" ", 26) + "by jm33-ng\n")
+	color.Cyan("examples:\n mec-ng -mode custom -module ./built-in/exp/exp -list ./conf/list -thd 50 -useproxy")
+	color.Cyan(" mec-ng -mode masscan -mlist /tmp/range.list")
+	color.Cyan(" mec-ng -mode xmir -xml ./output/masscan.xml -filter 'SSH-2.0-OpenSSH_7.4p1'")
+	color.Cyan(" mec-ng -mode bruteforce -list ./conf/list")
+	color.Cyan(" mec-ng -mode zoomeye\n\n\n")
 }

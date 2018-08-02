@@ -8,6 +8,8 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+
+	"github.com/fatih/color"
 )
 
 // Address : host>address
@@ -147,7 +149,7 @@ func FileToLines(filepath string) ([]string, error) {
 	return nil, err
 }
 
-// ExecCmd : exec shell command and put combined output to stdout/stderr
+// ExecCmd : exec shell command and put combined output to stdout (line by line)
 func ExecCmd(prog string, args string) error {
 
 	cmd := exec.Command(prog, strings.Split(args, " ")...)
@@ -189,4 +191,52 @@ func searchHost(filter string, banner string) bool {
 	}
 
 	return false
+}
+
+// PrintCyan : print main msg
+func PrintCyan(format string, a ...interface{}) {
+	color.Set(color.FgCyan)
+	defer color.Unset()
+	fmt.Printf(format, a...)
+	fmt.Print("\n")
+}
+
+// PrintRed : print main msg
+func PrintRed(format string, a ...interface{}) {
+	color.Set(color.FgRed)
+	defer color.Unset()
+	fmt.Printf(format, a...)
+	fmt.Print("\n")
+}
+
+// PrintError : print text in red
+func PrintError(format string, a ...interface{}) {
+	color.Set(color.FgRed, color.Bold)
+	defer color.Unset()
+	fmt.Printf(format, a...)
+	fmt.Print("\n")
+}
+
+// PrintSuccess : print text in red
+func PrintSuccess(format string, a ...interface{}) {
+	color.Set(color.FgHiGreen, color.Bold)
+	defer color.Unset()
+	fmt.Printf(format, a...)
+	fmt.Print("\n")
+}
+
+// LogError : print log in red
+func LogError(format string, a ...interface{}) {
+	color.Set(color.FgRed, color.Bold)
+	defer color.Unset()
+	log.Printf(format, a...)
+	fmt.Print("\n")
+}
+
+// LogSuccess : print log in red
+func LogSuccess(format string, a ...interface{}) {
+	color.Set(color.FgHiGreen, color.Bold)
+	defer color.Unset()
+	log.Printf(format, a...)
+	fmt.Print("\n")
 }
