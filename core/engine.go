@@ -61,8 +61,8 @@ func Config() {
 			utils.PrintRed("[-] cannot enter target directory: %s", err.Error())
 			return
 		}
-		utils.PrintCyan("[*] working under: ", Environ.WorkDir)
-		utils.PrintCyan("[*] target: ", Environ.TargetList)
+		utils.PrintCyan("[*] working under: %s", Environ.WorkDir)
+		utils.PrintCyan("[*] target: %s", Environ.TargetList)
 	}
 
 	t := time.Now()
