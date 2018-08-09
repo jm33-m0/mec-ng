@@ -115,7 +115,7 @@ func run(mod string) {
 			argsArray := append(TailArgs, ip)
 			args := strings.Join(argsArray, " ")
 
-			utils.PrintCyan("working on", ip)
+			utils.PrintCyan("working on %s", ip)
 			c <- utils.ExecCmd(mod, args)
 
 			// in case we want to quit the goroutine on timeout
