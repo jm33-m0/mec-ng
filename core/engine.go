@@ -1,7 +1,6 @@
 package core
 
 import (
-	"context"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -102,9 +101,7 @@ func run(mod string) {
 	}
 
 	var wg sync.WaitGroup
-	i := 0 // job counter
-	c := make(chan error)
-	ctx, cancel := context.WithCancel(context.Background())
+	i := 1 // job counter
 
 	for _, line := range lines {
 		ip := strings.Trim(line, "\n")
@@ -115,24 +112,9 @@ func run(mod string) {
 			argsArray := append(TailArgs, ip)
 			args := strings.Join(argsArray, " ")
 
-			utils.PrintCyan("working on %s", ip)
-			c <- utils.ExecCmd(mod, args)
-
-			// in case we want to quit the goroutine on timeout
-			select {
-			case <-ctx.Done():
-				utils.PrintRed("[-] %s : goroutine canceled by timeout", ip)
-				return
-			}
+			// utils.PrintCyan("working on %s", ip)
+			utils.ExecCmd(mod, args)
 		}()
-		select {
-		case err := <-c:
-			if err != nil {
-				utils.PrintRed("[-] Err in goroutine: %s", err.Error())
-			}
-		case <-time.After(10 * time.Second):
-			cancel()
-		}
 
 		i++
 
@@ -142,10 +124,10 @@ func run(mod string) {
 		}
 	}
 
-	for {
-		time.Sleep(1 * time.Second)
-		// TODO check if any process is still running, if none found, tell the routine to exit
-	}
+	// for {
+	// 	time.Sleep(1 * time.Second)
+	// 	// TODO check if any process is still running, if none found, tell the routine to exit
+	// }
 }
 
 func masscan(rangelist string) {

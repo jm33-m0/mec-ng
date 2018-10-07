@@ -154,31 +154,10 @@ func ExecCmd(prog string, args string) error {
 
 	cmd := exec.Command(prog, strings.Split(args, " ")...)
 
-	// log.Println(cmd)
-	stderr, _ := cmd.StderrPipe()
-	stdout, _ := cmd.StdoutPipe()
-
 	err := cmd.Start()
 	if err != nil {
 		return err
 	}
-
-	outScanner := bufio.NewScanner(stdout)
-	errScanner := bufio.NewScanner(stderr)
-
-	go func() {
-		for outScanner.Scan() {
-			m := outScanner.Text()
-			fmt.Println(m)
-		}
-	}()
-
-	go func() {
-		for errScanner.Scan() {
-			e := errScanner.Text()
-			fmt.Println(e)
-		}
-	}()
 
 	cmd.Wait()
 	return err
