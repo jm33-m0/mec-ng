@@ -234,3 +234,13 @@ func LogSuccess(format string, a ...interface{}) {
 	log.Printf(format, a...)
 	fmt.Print("\n")
 }
+
+// SetCyan : make text following go cyan
+func SetCyan() {
+	color.Set(color.FgCyan, color.Bold)
+}
+
+// UnsetCyan : make text following go back to normal color
+func UnsetCyan() {
+	color.Unset()
+}

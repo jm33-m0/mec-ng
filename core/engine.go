@@ -110,8 +110,10 @@ func run(mod string) {
 		utils.PrintSuccess("[-] Error getting file length: %s", err.Error())
 		return
 	}
+	utils.SetCyan()
+	defer utils.UnsetCyan()
 	bar := pb.StartNew(length)
-	bar.SetRefreshRate(50 * time.Millisecond)
+	bar.SetRefreshRate(10 * time.Millisecond)
 
 	for _, line := range lines {
 		ip := strings.Trim(line, "\n")
@@ -119,15 +121,13 @@ func run(mod string) {
 		go func() {
 			wg.Add(1)
 			defer wg.Done()
+			defer bar.Increment()
 			argsArray := append(TailArgs, ip)
 			args := strings.Join(argsArray, " ")
 
-			// utils.PrintCyan("working on %s", ip)
 			if err := utils.ExecCmd(mod, args); err != nil {
 				utils.PrintError("[-] Error on %s: %s", ip, err.Error())
 			}
-			bar.Increment()
-
 		}()
 
 		i++
