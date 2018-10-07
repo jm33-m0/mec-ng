@@ -130,6 +130,21 @@ func CloseFileStream(file *os.File) (err error) {
 	return err
 }
 
+// GetFileLength : How many lines does a text file contain
+func GetFileLength(file string) (int, error) {
+	i := 0
+
+	lines, err := FileToLines(file)
+	if err != nil {
+		PrintError("Can't open file: %s", err.Error())
+	}
+	for range lines {
+		i++
+	}
+
+	return i, err
+}
+
 // FileToLines : Read lines from a text file
 func FileToLines(filepath string) ([]string, error) {
 	f, err := os.Open(filepath)

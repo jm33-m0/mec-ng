@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/jm33-m0/mec-ng/utils"
+	"gopkg.in/cheggaaa/pb.v1"
 )
 
 // Env : env vars for mec
@@ -103,6 +104,15 @@ func run(mod string) {
 	var wg sync.WaitGroup
 	i := 1 // job counter
 
+	// start a progress bar
+	length, err := utils.GetFileLength(Environ.TargetList)
+	if err != nil {
+		utils.PrintSuccess("[-] Error getting file length: %s", err.Error())
+		return
+	}
+	bar := pb.StartNew(length)
+	bar.SetRefreshRate(50 * time.Millisecond)
+
 	for _, line := range lines {
 		ip := strings.Trim(line, "\n")
 
@@ -113,7 +123,11 @@ func run(mod string) {
 			args := strings.Join(argsArray, " ")
 
 			// utils.PrintCyan("working on %s", ip)
-			utils.ExecCmd(mod, args)
+			if err := utils.ExecCmd(mod, args); err != nil {
+				utils.PrintError("[-] Error on %s: %s", ip, err.Error())
+			}
+			bar.Increment()
+
 		}()
 
 		i++
@@ -122,6 +136,7 @@ func run(mod string) {
 			i = 0
 			wg.Wait()
 		}
+
 	}
 
 	// for {
