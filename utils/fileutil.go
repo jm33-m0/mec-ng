@@ -165,17 +165,17 @@ func FileToLines(filepath string) ([]string, error) {
 }
 
 // ExecCmd : exec shell command and put combined output to stdout (line by line)
-func ExecCmd(prog string, args string) error {
+func ExecCmd(prog string, args string) (int, error) {
 
 	cmd := exec.Command(prog, strings.Split(args, " ")...)
 
 	err := cmd.Start()
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	cmd.Wait()
-	return err
+	return cmd.Process.Pid, err
 }
 
 func searchHost(filter string, banner string) bool {

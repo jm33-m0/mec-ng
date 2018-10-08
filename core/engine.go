@@ -104,6 +104,9 @@ func run(mod string) {
 	var wg sync.WaitGroup
 	i := 1 // job counter
 
+	// deal with error and process state
+	var pids []int
+
 	// start a progress bar
 	length, err := utils.GetFileLength(Environ.TargetList)
 	if err != nil {
@@ -125,7 +128,10 @@ func run(mod string) {
 			argsArray := append(TailArgs, ip)
 			args := strings.Join(argsArray, " ")
 
-			if err := utils.ExecCmd(mod, args); err != nil {
+			pid, err := utils.ExecCmd(mod, args)
+			pids = append(pids, pid)
+
+			if err != nil {
 				utils.PrintError("[-] Error on %s: %s", ip, err.Error())
 			}
 		}()
@@ -134,14 +140,24 @@ func run(mod string) {
 
 		if i == JobCnt && &wg != nil {
 			i = 0
+			var proc *os.Process
+			for pid := range pids {
+				if proc, err = os.FindProcess(pid); err == nil {
+					time.Sleep(100 * time.Millisecond)
+					if err = proc.Kill(); err != nil {
+						// utils.PrintRed("Failed to kill process: %s", err.Error())
+						continue
+					}
+				}
+			}
 			wg.Wait()
 		}
 
 	}
 
 	// for {
-	// 	time.Sleep(1 * time.Second)
-	// 	// TODO check if any process is still running, if none found, tell the routine to exit
+	//	time.Sleep(1 * time.Second)
+	//	// TODO check if any process is still running, if none found, tell the routine to exit
 	// }
 }
 
