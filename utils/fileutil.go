@@ -54,10 +54,14 @@ func XML2List(xmlfile string, outfile string, filter string) {
 
 	xmlStream, err := os.Open(xmlfile)
 	if err != nil {
-		log.Print("Failed to open XML file: ", err)
+		PrintError("Failed to open XML file: %s", err)
 		return
 	}
-	defer xmlStream.Close()
+	defer func() {
+		if err = xmlStream.Close(); err != nil {
+			PrintError(err.Error())
+		}
+	}()
 
 	// open outfile
 	outf, err := OpenFileStream(outfile)
@@ -65,7 +69,12 @@ func XML2List(xmlfile string, outfile string, filter string) {
 		log.Println("Error opening ", outfile+"\n", err)
 		return
 	}
-	defer CloseFileStream(outf)
+	defer func() {
+		err = CloseFileStream(outf)
+		if err != nil {
+			PrintError(err.Error())
+		}
+	}()
 
 	decoder := xml.NewDecoder(xmlStream)
 	for {
@@ -79,7 +88,10 @@ func XML2List(xmlfile string, outfile string, filter string) {
 		case xml.StartElement:
 			if se.Name.Local == "host" {
 				var h Host
-				decoder.DecodeElement(&h, &se)
+				err = decoder.DecodeElement(&h, &se)
+				if err != nil {
+					PrintError(err.Error())
+				}
 
 				// since mostly we have just one port to detect
 				address := h.Address.Addr
@@ -92,22 +104,22 @@ func XML2List(xmlfile string, outfile string, filter string) {
 
 				// write desired host to file
 				if searchHost(filter, banner) {
-					AppendToFile(outf, address)
+					err = AppendToFile(outf, address)
+					if err != nil {
+						PrintError(err.Error())
+					}
 				}
 			}
 		default:
 		}
 	}
-
-	// close outfile
-	CloseFileStream(outf)
 }
 
 // AppendToFile : append a line to target file
 func AppendToFile(file *os.File, line string) (err error) {
 	// write appendly
 	if _, err = file.Write([]byte(line + "\n")); err != nil {
-		log.Print("Write err: ", err, "\nWriting ", line)
+		PrintError("Write err: %s\nwriting line: %s", err.Error(), line)
 		return err
 	}
 	return nil
@@ -118,7 +130,7 @@ func OpenFileStream(filepath string) (file *os.File, err error) {
 	// open outfile
 	file, err = os.OpenFile(filepath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
-		log.Print(filepath, " : Failed to open file\n", err)
+		PrintError("%s : Failed to open file\n%s", filepath, err.Error())
 		return nil, err
 	}
 	return file, nil
@@ -149,7 +161,11 @@ func GetFileLength(file string) (int, error) {
 func FileToLines(filepath string) ([]string, error) {
 	f, err := os.Open(filepath)
 	if err == nil {
-		defer f.Close()
+		defer func() {
+			if err = f.Close(); err != nil {
+				PrintError(err.Error())
+			}
+		}()
 
 		var lines []string
 		scanner := bufio.NewScanner(f)
@@ -174,7 +190,10 @@ func ExecCmd(prog string, args string) (int, error) {
 		return 0, err
 	}
 
-	cmd.Wait()
+	err = cmd.Wait()
+	if err != nil {
+		PrintError(err.Error())
+	}
 	return cmd.Process.Pid, err
 }
 

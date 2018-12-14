@@ -62,7 +62,11 @@ func getPage(host string, port int) []byte {
 		return nil
 	}
 	resp.Close = true
-	defer resp.Body.Close()
+	defer func() {
+		if err = resp.Body.Close(); err != nil {
+			PrintError(err.Error())
+		}
+	}()
 
 	respBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {

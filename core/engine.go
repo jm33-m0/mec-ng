@@ -128,12 +128,11 @@ func run(mod string) {
 			argsArray := append(TailArgs, ip)
 			args := strings.Join(argsArray, " ")
 
-			pid, err := utils.ExecCmd(mod, args)
-			pids = append(pids, pid)
-
-			if err != nil {
+			pid, e := utils.ExecCmd(mod, args)
+			if e != nil {
 				utils.PrintError("[-] Error on %s: %s", ip, err.Error())
 			}
+			pids = append(pids, pid)
 		}()
 
 		i++
@@ -169,7 +168,10 @@ func masscan(rangelist string) {
 	prog := "masscan"
 	args := fmt.Sprintf("-iL %s -c %s/conf/masscan.conf -oX %s", rangelist, Environ.MecRoot, Environ.MecRoot+"/output/"+Environ.TimeStamp+"-masscan.xml")
 
-	utils.ExecCmd(prog, args)
+	_, err := utils.ExecCmd(prog, args)
+	if err != nil {
+		utils.PrintError(err.Error())
+	}
 }
 
 func xmir(xml string, filter string) {
