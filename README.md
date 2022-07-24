@@ -1,24 +1,23 @@
 # mec-ng
-pentest toolbox
+A penetration test (pentest) toolbox
 
-> NOTE: this tool is still under early-stage development, if anything goes wrong, please open an issue
+> NOTE: This tool is under early-stage development. If anything goes wrong, please open an issue.
 
-## features
+## Features
 
-- [x] zoomeye crawler with multi-thread
-- [x] fast internet sweeping using masscan
-- [x] execute custom exp with process-level concurrency
-- [ ] shadowsocks proxy support (for anonymity)
-- [ ] mass brute-force
-- [ ] built-in exploit packs
+- [x] ZoomEye crawler with multi-threading
+- [x] Fast internet sweeping using MASSCAN
+- [x] Executes custom exp with process-level concurrency
+- [ ] Shadowsocks proxy support (for anonymity)
+- [ ] Mass brute-force
+- [ ] Built-in exploit packs
 
-## screenshot
+## Screenshot
 
 ![screenshot](./img/screenshot.jpeg)
 
-## disclaimer
+## Disclaimer
 
-- please use this tool only on authorized systems, im not responsible for any damage caused by users who ignore my warning
-- i do not own the code of adapted exploits or tools
-- exploits are adapted from other sources, please refer to their author info
-- due to my limited programming experience, you can expect some silly bugs
+- Use this tool only on authorized systems. I am not responsible for any damage caused by users who ignore my warning.
+- I do not own the code of adapted exploits/tools as they are borrowed. Please refer to the appropriate authors.
+- Due to my limited programming experience, expect some silly bugs :)
